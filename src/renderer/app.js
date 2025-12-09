@@ -12,6 +12,7 @@ class TagVideoPlayerApp {
     this.editingTagIndex = -1;
     this.editingTagTime = -1; // 保存編輯時的時間戳
     this.isHandlingDrop = false;
+    this.notificationContainer = null;
 
     this.initializeElements();
     this.attachEventListeners();
@@ -44,6 +45,7 @@ class TagVideoPlayerApp {
     this.tagTime = document.getElementById('tagTime');
     this.btnSaveTag = document.getElementById('btnSaveTag');
     this.btnCancelTag = document.getElementById('btnCancelTag');
+    this.notificationContainer = document.getElementById('notificationContainer');
   }
 
   /**
@@ -102,6 +104,9 @@ class TagVideoPlayerApp {
         this.handleDroppedPath(path, name || path);
       }
     });
+
+    // 鍵盤快捷鍵監聽
+    document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
   }
 
   /**
@@ -658,6 +663,10 @@ class TagVideoPlayerApp {
     console.log(
       `Video loaded: ${this.videoPlayer.duration.toFixed(2)}s`,
     );
+    // 自動播放影片
+    this.videoPlayer.play().catch((error) => {
+      console.warn('自動播放失敗:', error);
+    });
   }
 
   /**
@@ -813,10 +822,59 @@ class TagVideoPlayerApp {
    * 顯示通知
    * @param {string} message 消息內容
    * @param {string} type 消息類型（success, error, warning, info）
+   * @param {number} duration 顯示時長（毫秒），默認 3000ms
    */
-  showNotification(message, type = 'info') {
+  showNotification(message, type = 'info', duration = 3000) {
     console.log(`[${type.toUpperCase()}] ${message}`);
-    // TODO: 實現視覺通知 UI
+    
+    // 創建通知元素
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    // 添加到容器
+    this.notificationContainer.appendChild(notification);
+    
+    // 設置自動移除
+    setTimeout(() => {
+      notification.remove();
+    }, duration + 300); // 加上動畫時間
+  }
+
+  /**
+   * 處理鍵盤快捷鍵
+   * C: 播放速度增加 0.1倍
+   * X: 播放速度減少 0.1倍
+   * A: 新增 tag（在當前播放時間）
+   * @param {KeyboardEvent} e 鍵盤事件
+   */
+  handleKeyboardShortcuts(e) {
+    // 如果正在編輯文本，忽略快捷鍵
+    const isEditingText = e.target.matches('input, textarea');
+    if (isEditingText) {
+      return;
+    }
+
+    const key = e.key.toUpperCase();
+
+    if (key === 'C') {
+      // 增加播放速度
+      const newSpeed = Math.min(this.videoPlayer.playbackRate + 0.1, 2.0);
+      this.videoPlayer.playbackRate = newSpeed;
+      this.showNotification(`播放速度: ${newSpeed.toFixed(1)}x`, 'info');
+      console.log(`[快捷鍵] 播放速度增加至 ${newSpeed.toFixed(1)}x`);
+    } else if (key === 'X') {
+      // 減少播放速度
+      const newSpeed = Math.max(this.videoPlayer.playbackRate - 0.1, 0.5);
+      this.videoPlayer.playbackRate = newSpeed;
+      this.showNotification(`播放速度: ${newSpeed.toFixed(1)}x`, 'info');
+      console.log(`[快捷鍵] 播放速度減少至 ${newSpeed.toFixed(1)}x`);
+    } else if (key === 'A') {
+      // 新增標籤，並阻止預設行為避免輸入 A 字符
+      e.preventDefault();
+      this.createNewTag();
+      console.log('[快捷鍵] 新增標籤');
+    }
   }
 }
 
