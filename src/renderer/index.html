@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TagVideoPlayer - 影片播放器</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- 主視頻播放區域 -->
+      <div class="video-container">
+        <video
+          id="videoPlayer"
+          class="video-player"
+          controls
+          controlsList="nodownload"
+        >
+          您的瀏覽器不支持 HTML5 影片標籤
+        </video>
+        <div class="video-placeholder" id="videoPlaceholder">
+          <div class="placeholder-content">
+            <p class="title">拖放影片到此處</p>
+            <p class="subtitle">或點擊下方按鈕選擇影片</p>
+            <button class="btn-open" id="btnOpen">選擇影片</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 側邊欄 -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h2>標籤列表</h2>
+          <div class="tag-controls">
+            <button class="btn-small" id="btnAddTag" title="新增標籤">
+              ➕ 新增
+            </button>
+            <button class="btn-small" id="btnClearTags" title="清除所有標籤">
+              🗑️ 清除
+            </button>
+          </div>
+        </div>
+
+        <!-- 標籤列表 -->
+        <ul class="tag-list" id="tagList"></ul>
+
+        <!-- 標籤編輯面板 -->
+        <div class="tag-editor" id="tagEditor" style="display: none">
+          <h3>編輯標籤</h3>
+          <div class="form-group">
+            <label>標籤名稱</label>
+            <input
+              type="text"
+              id="tagTitle"
+              class="form-input"
+              placeholder="輸入標籤名稱"
+            />
+          </div>
+          <div class="form-group">
+            <label>描述</label>
+            <textarea
+              id="tagDescription"
+              class="form-textarea"
+              placeholder="輸入標籤描述"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>時間</label>
+            <input
+              type="text"
+              id="tagTime"
+              class="form-input"
+              placeholder="時間（HH:MM:SS 或秒數，可編輯）"
+            />
+          </div>
+          <div class="form-actions">
+            <button class="btn-save" id="btnSaveTag">保存</button>
+            <button class="btn-cancel" id="btnCancelTag">取消</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
