@@ -106,7 +106,13 @@ class TagVideoPlayerApp {
     });
 
     // 鍵盤快捷鍵監聽
-    document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+    document.addEventListener('keydown', (e) => {
+      // 移除 video 元素的 focus，防止方向鍵被 HTML5 video 控件攔截
+      if (document.activeElement === this.videoPlayer) {
+        this.videoPlayer.blur();
+      }
+      this.handleKeyboardShortcuts(e);
+    });
 
     // 監聽 Alt + S 保存標籤
     document.addEventListener('keydown', (e) => {
@@ -906,25 +912,28 @@ class TagVideoPlayerApp {
       const volumePercent = Math.round(newVolume * 100);
       this.showNotification(`音量: ${volumePercent}%`, 'info');
       console.log(`[快捷鍵] 音量減少至 ${volumePercent}%`);
-    } else if (arrowKey === 'ArrowRight') {
-      // 播放進度 +8秒
+    } else if (arrowKey === 'ArrowRight' || arrowKey === 'ArrowLeft') {
       e.preventDefault();
-      const newTime = Math.min(
-        this.videoPlayer.currentTime + 8,
-        this.videoPlayer.duration,
-      );
-      this.videoPlayer.currentTime = newTime;
-      const timeStr = this.formatTime(newTime);
-      this.showNotification(`⏩ 快進 +8秒 (${timeStr})`, 'info');
-      console.log(`[快捷鍵] 快進 +8秒，當前時間: ${timeStr}`);
-    } else if (arrowKey === 'ArrowLeft') {
-      // 播放進度 -8秒
-      e.preventDefault();
-      const newTime = Math.max(this.videoPlayer.currentTime - 8, 0);
-      this.videoPlayer.currentTime = newTime;
-      const timeStr = this.formatTime(newTime);
-      this.showNotification(`⏪ 快退 -8秒 (${timeStr})`, 'info');
-      console.log(`[快捷鍵] 快退 -8秒，當前時間: ${timeStr}`);
+      const skipSeconds = 8;
+      
+      if (arrowKey === 'ArrowRight') {
+        // 播放進度 +8秒
+        const newTime = Math.min(
+          this.videoPlayer.currentTime + skipSeconds,
+          this.videoPlayer.duration,
+        );
+        this.videoPlayer.currentTime = newTime;
+        const timeStr = this.formatTime(newTime);
+        this.showNotification(`⏩ 快進 +${skipSeconds}秒 (${timeStr})`, 'info');
+        console.log(`[快捷鍵] 快進 +${skipSeconds}秒，當前時間: ${timeStr}`);
+      } else if (arrowKey === 'ArrowLeft') {
+        // 播放進度 -8秒
+        const newTime = Math.max(this.videoPlayer.currentTime - skipSeconds, 0);
+        this.videoPlayer.currentTime = newTime;
+        const timeStr = this.formatTime(newTime);
+        this.showNotification(`⏪ 快退 -${skipSeconds}秒 (${timeStr})`, 'info');
+        console.log(`[快捷鍵] 快退 -${skipSeconds}秒，當前時間: ${timeStr}`);
+      }
     }
   }
 }
