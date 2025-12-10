@@ -107,6 +107,17 @@ class TagVideoPlayerApp {
 
     // 鍵盤快捷鍵監聽
     document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+
+    // 監聽 Alt + S 保存標籤
+    document.addEventListener('keydown', (e) => {
+      if (e.altKey && e.key.toUpperCase() === 'S') {
+        e.preventDefault();
+        // 檢查標籤編輯器是否可見
+        if (this.tagEditor.style.display !== 'none') {
+          this.saveCurrentTag();
+        }
+      }
+    });
   }
 
   /**
@@ -846,6 +857,10 @@ class TagVideoPlayerApp {
    * C: 播放速度增加 0.1倍
    * X: 播放速度減少 0.1倍
    * A: 新增 tag（在當前播放時間）
+   * 上: 音量增加 0.1
+   * 下: 音量減少 0.1
+   * 右: 播放進度 +8秒
+   * 左: 播放進度 -8秒
    * @param {KeyboardEvent} e 鍵盤事件
    */
   handleKeyboardShortcuts(e) {
@@ -856,6 +871,7 @@ class TagVideoPlayerApp {
     }
 
     const key = e.key.toUpperCase();
+    const arrowKey = e.key;
 
     if (key === 'C') {
       // 增加播放速度
@@ -874,6 +890,41 @@ class TagVideoPlayerApp {
       e.preventDefault();
       this.createNewTag();
       console.log('[快捷鍵] 新增標籤');
+    } else if (arrowKey === 'ArrowUp') {
+      // 音量增加
+      e.preventDefault();
+      const newVolume = Math.min(this.videoPlayer.volume + 0.1, 1.0);
+      this.videoPlayer.volume = newVolume;
+      const volumePercent = Math.round(newVolume * 100);
+      this.showNotification(`音量: ${volumePercent}%`, 'info');
+      console.log(`[快捷鍵] 音量增加至 ${volumePercent}%`);
+    } else if (arrowKey === 'ArrowDown') {
+      // 音量減少
+      e.preventDefault();
+      const newVolume = Math.max(this.videoPlayer.volume - 0.1, 0.0);
+      this.videoPlayer.volume = newVolume;
+      const volumePercent = Math.round(newVolume * 100);
+      this.showNotification(`音量: ${volumePercent}%`, 'info');
+      console.log(`[快捷鍵] 音量減少至 ${volumePercent}%`);
+    } else if (arrowKey === 'ArrowRight') {
+      // 播放進度 +8秒
+      e.preventDefault();
+      const newTime = Math.min(
+        this.videoPlayer.currentTime + 8,
+        this.videoPlayer.duration,
+      );
+      this.videoPlayer.currentTime = newTime;
+      const timeStr = this.formatTime(newTime);
+      this.showNotification(`⏩ 快進 +8秒 (${timeStr})`, 'info');
+      console.log(`[快捷鍵] 快進 +8秒，當前時間: ${timeStr}`);
+    } else if (arrowKey === 'ArrowLeft') {
+      // 播放進度 -8秒
+      e.preventDefault();
+      const newTime = Math.max(this.videoPlayer.currentTime - 8, 0);
+      this.videoPlayer.currentTime = newTime;
+      const timeStr = this.formatTime(newTime);
+      this.showNotification(`⏪ 快退 -8秒 (${timeStr})`, 'info');
+      console.log(`[快捷鍵] 快退 -8秒，當前時間: ${timeStr}`);
     }
   }
 }
